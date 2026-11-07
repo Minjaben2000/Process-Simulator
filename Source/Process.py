@@ -12,7 +12,26 @@ class Process(object):
         self.__BurstTime = BurstTime
         self.__Priority = Priority
         self.__Arrival = Arrival
-    
+
+    @property
+    def ID(self):
+        return self.__ID
+
+    @property
+    def BurstTime(self):
+        return self.__BurstTime
+
+    @property
+    def Priority(self):
+        return self.__Priority
+
+    @property
+    def Arrival(self):
+        return self.__Arrival
+
+    def __eq__(self, other) -> bool:
+        return self.__ID == other.ID
+
     def __work(self):
         # do work
         time.sleep(1)
