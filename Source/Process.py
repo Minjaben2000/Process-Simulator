@@ -1,13 +1,18 @@
 import threading
 import time
 
-class Process(object):
+
+
+
+
+class Process(threading.Thread):
     __ID = 0
     __BurstTime = 0
     __Priority = 0
     __Arrival = 0
 
     def __init__(self, ID: int, BurstTime: int, Priority: int, Arrival: int):
+        super().__init__()
         self.__ID = ID
         self.__BurstTime = BurstTime
         self.__Priority = Priority
@@ -30,16 +35,15 @@ class Process(object):
         return self.__Arrival
 
     def __eq__(self, other) -> bool:
+        if not isinstance(other, Process):
+            return False
         return self.__ID == other.ID
 
-    def __work(self):
-        # do work
-        time.sleep(1)
+    def __hash__(self) -> int:
+        return hash(self.__ID)
 
-    __task = threading.Thread(target=__work)
+    def run(self):
+        print(f"p{self.__ID} running\n")
+        time.sleep(self.__BurstTime)
+        print(f"p{self.__ID} stopping")
 
-    def start(self):
-        self.__task.start()
-
-    def join(self):
-        self.__task.join()
