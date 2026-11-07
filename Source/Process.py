@@ -7,20 +7,20 @@ class Process(object):
     __Priority = 0
     __Arrival = 0
 
-    def __init__(self, ID, BurstTime, Priority, Arrival):
+    def __init__(self, ID: int, BurstTime: int, Priority: int, Arrival: int):
         self.__ID = ID
         self.__BurstTime = BurstTime
         self.__Priority = Priority
         self.__Arrival = Arrival
     
-    def __work():
+    def __work(self):
         # do work
         time.sleep(1)
 
-    __task = threading.Thread(target=__work);
+    __task = threading.Thread(target=__work)
 
-    def start():
-        __task.start()
+    def start(self):
+        self.__task.start()
 
-    def join():
-        __task.join()
+    def join(self):
+        self.__task.join()
