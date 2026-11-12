@@ -2,11 +2,12 @@ from Process import *
 from collections import deque
 import time
 
-timeQuantum = 2
-
 class RRobin(Process):
-    def __init__(self, ID, BurstTime, Priority, Arrival,):
+    #Constructor-------------------------------------------------------------------
+    def __init__(self, ID, BurstTime, Priority, Arrival, timeQuantum):
         super().__init__(ID, BurstTime, Priority, Arrival)
+        self.timeQuantum = timeQuantum
+
         self.remainingBurstTime = self.BurstTime
         
         self.finished = False
@@ -29,7 +30,8 @@ class RRobin(Process):
 
             self.pause_event.set()
 
-def runThread(process_set):
+#-------------------------------------------------------------------
+def runThread(process_set, quantum):
     ready_queue = deque() # Used a deque to manage the ready processes in a round-robin fashion
     threads = []
 
@@ -53,7 +55,7 @@ def runThread(process_set):
 
         process.pause_event.wait()
 
-        exeTime = min(timeQuantum, process.remainingBurstTime)
+        exeTime = min(quantum, process.remainingBurstTime)
         currentTime += exeTime
         # Testing line to see what current time is being set to
         # print(f"Current time: {currentTime}s")
@@ -68,10 +70,12 @@ def runThread(process_set):
             process.run_event.set()
             process.join()
 
+
+
 if __name__ == "__main__":
     p1 = Process(1, 9, 0, 0)
     p2 = Process(2, 5, 0, 1)
     p3 = Process(3, 3, 0, 2)
     p4 = Process(4, 13, 0, 3)
     processSet = [p1, p2, p3, p4]
-    runThread(processSet)
+    runThread(processSet, 2)
