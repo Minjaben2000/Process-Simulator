@@ -18,6 +18,10 @@ class Process(threading.Thread):
         self.__Priority = Priority
         self.__Arrival = Arrival
 
+        # Events used to coordinate processes within the scheduler
+        self.run_event = threading.Event()
+        self.pause_event = threading.Event()
+
     @property
     def ID(self):
         return self.__ID
