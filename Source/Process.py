@@ -42,8 +42,14 @@ class Process(threading.Thread):
     def __hash__(self) -> int:
         return hash(self.__ID)
 
+    def __str__(self) -> str:
+        return f"Id: {self.__ID} BurstTime: {self.__BurstTime} Priority: {self.__Priority} Arrival: {self.__Arrival}"
+
+    def __repr__(self) -> str:
+        return f"<Process ID={self.__ID}, BurstTime={self.__BurstTime}, Priority={self.__Priority}, Arrival={self.__Arrival}>"
+
     def run(self):
         print(f"p{self.__ID} running\n")
         time.sleep(self.__BurstTime)
-        print(f"p{self.__ID} stopping")
+        print(f"p{self.__ID} stopping\n")
 
