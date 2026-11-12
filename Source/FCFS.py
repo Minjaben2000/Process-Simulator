@@ -3,6 +3,7 @@ import queue
 
 
 class FirstComeProcess(Process.Process):
+    """Subclass of Process class to add ordering by arrival time"""
     def __init__(self, ID, BurstTime, Priority, Arrival):
         super().__init__(ID, BurstTime, Priority, Arrival)
 
@@ -10,9 +11,12 @@ class FirstComeProcess(Process.Process):
         return self.Arrival < other.Arrival
 
 
-
-# This function accepts a set
-def run(process_set):
+# This function accepts an iterable of Process objects
+def run(process_set) -> list[FirstComeProcess]:
+    """This function accepts an iterable of Process objects
+    :param process_set: iterable of Process objects
+    :return: List of FirstComeProcess objects
+    """
     process_queue = queue.PriorityQueue()
     for process in process_set:
         fcprocess = FirstComeProcess(process.ID, process.BurstTime, process.Priority, process.Arrival)
