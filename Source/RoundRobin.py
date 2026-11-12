@@ -5,8 +5,9 @@ import time
 class RRobin(Process):
     #Constructor-------------------------------------------------------------------
     def __init__(self, ID, BurstTime, Priority, Arrival, timeQuantum):
-        super().__init__(ID, BurstTime, Priority, Arrival)
         self.timeQuantum = timeQuantum
+
+        super().__init__(ID, BurstTime, Priority, Arrival)
 
         self.remainingBurstTime = self.BurstTime
         
@@ -23,7 +24,7 @@ class RRobin(Process):
             if self.finished:
                 break
             
-            exeTime = min(timeQuantum, self.remainingBurstTime)
+            exeTime = min(self.timeQuantum, self.remainingBurstTime)
             print(f"p{self.ID} running for {exeTime} time units (Remaining: {self.remainingBurstTime - exeTime}s)")
 
             time.sleep(exeTime)
@@ -31,12 +32,12 @@ class RRobin(Process):
             self.pause_event.set()
 
 #-------------------------------------------------------------------
-def runThread(process_set, quantum):
+def runThread(process_set, quantum : int):
     ready_queue = deque() # Used a deque to manage the ready processes in a round-robin fashion
     threads = []
 
     for process in process_set:
-        RRprocess = RRobin(process.ID, process.BurstTime, process.Priority, process.Arrival)
+        RRprocess = RRobin(process.ID, process.BurstTime, process.Priority, process.Arrival, 2)
         threads.append(RRprocess)
         RRprocess.start()
 
