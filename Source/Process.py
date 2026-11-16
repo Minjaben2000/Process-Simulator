@@ -33,6 +33,8 @@ class Process(threading.Thread):
     @property
     def Priority(self):
         return self.__Priority
+    def setPriority(self, val: int):
+        self.__Priority = val
 
     @property
     def Arrival(self):
