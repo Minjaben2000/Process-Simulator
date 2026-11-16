@@ -29,6 +29,8 @@ class Process(threading.Thread):
     @property
     def BurstTime(self):
         return self.__BurstTime
+    def lowerBurstTime(self, val: int):
+        self.__BurstTime -= val
 
     @property
     def Priority(self):
