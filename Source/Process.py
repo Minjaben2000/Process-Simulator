@@ -41,6 +41,8 @@ class Process(threading.Thread):
     @property
     def Arrival(self):
         return self.__Arrival
+    def lowerArrival(self, val: int):
+        self.__Arrival -= val
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Process):

@@ -2,34 +2,55 @@ import Process
 import queue
 import RoundRobin
 from collections import deque
+import time
 
 class MultiFeedbackQueue(Process.Process):
-    def __init__(self, ID, BurstTime, Priority, Arrival):
+    def __init__(self, ID, BurstTime, Priority, Arrival, runTime):
         super().__init__(ID, BurstTime, Priority, Arrival)
         self.remainingBurstTime = self.BurstTime
+        self.runtime = runTime
 
-def run(process_set):
+    def run(self):
+        print(f"[Thread] p{self.ID} initialized")
+
+        while self.remainingBurstTime > 0:
+            self.run_event.wait()
+            self.run_event.clear()
+
+            exeTime = min(self.runtime, (self.remainingBurstTime + self.Arrival))
+            print(f"p{self.ID} running for {exeTime} time units (Remaining: {self.remainingBurstTime - (exeTime + self.Arrival)}s)")
+
+            time.sleep(exeTime)
+
+            self.pause_event.set()
+
+def runThread(process_set, runtime : int):
     process_queue = []
     for process in process_set:
-        fqprocess = MultiFeedbackQueue(process.ID, process.BurstTime, process.Priority, process.Arrival)
-        process_queue.append(fqprocess)
+        mlfqprocess = MultiFeedbackQueue(process.ID, process.BurstTime, process.Priority, process.Arrival, 12)
+        process_queue.append(mlfqprocess)
 
     sets = __sort__(process_queue)
 
+    """
     print("Running High Priority Queue\n")
-    __runRobinThread__(sets[0], 2,12)
+    __runRobinThread__(sets[0], 2, runtime)
     print("Running Mid Priority Queue\n")
-    __runRobinThread__(sets[1], 4, 12)
-    #print("Running Low Priority Queue\n")
-    #__runLowQueue__(sets[2], 12)
+    __runRobinThread__(sets[1], 4, runtime)
+    """
+
+    print("Running Low Priority Queue\n")
+    __runLowQueue__(sets[2], runtime)
     process_queue = sets[0] + sets[1] + sets[2]
     sets = __sort__(process_queue)
 
-#--------------------------------------------------------------------------------------------------------------------
-#Sorts a set of processes into 3 queues based on priority
-#process_set
-#--------------------------------------------------------------------------------------------------------------------
+
 def __sort__(process_set):
+    """
+    Sorts a set of processes into 3 queues based on priority
+    process_set: the set of processes to be sorted
+    @return - 2D array, 3 queues
+    """
     process_set.sort(key=lambda x: x.Priority)
     LowerParse = int((len(process_set)/3)) #pointer splitting lower priority processes off
     UpperParse = int((len(process_set) * 2)/3) #pointer splitting higher priority processes off
@@ -125,14 +146,57 @@ def __runLowQueue__(process_set, runtime : int):
     :return: List of FirstComeProcess objects
     """
     run_list = []
+    run_queue = []
+    threads = []
     trackedTime = 0
+    exetime = 0
+
+    for process in process_set:
+        MLFQProcess = MultiFeedbackQueue(process.ID, process.BurstTime, process.Priority, process.Arrival, runtime)
+        threads.append(MLFQProcess)
+        MLFQProcess.start()
+
+    for t in threads:
+        run_queue.append(t)
+
     while not (len(process_set) == 0) and trackedTime < runtime:
-        process = process_set.pop(0)
-        process.start()
-        print(f"Process {process.ID} started")
-        process.join()
+        process = run_queue.pop(0)
+        temp = process_set.pop(0)
+
+        process.pause_event.clear()
+        process.run_event.set()
+        process.pause_event.wait()
+
+        if(process.Arrival < process.runtime):
+            if (process.remainingBurstTime < (process.runtime - process.Arrival)): #burst time and arrival time is less than runtime
+                exetime = process.remainingBurstTime + process.Arrival
+                process.remainingBurstTime = 0
+                process.lowerBurstTime(process.BurstTime)
+            else:                                                           #Arrival time is less than runtime, but only some of bursttime can run
+                print(f"p{process.ID} adjusting burst time")
+                exetime = process.runtime
+                process.remainingBurstTime -= process.runtime - process.Arrival
+                process.lowerBurstTime(process.runtime - process.Arrival)
+                run_queue.insert(0, process)
+                process_set.insert(0, temp)
+        else:                                                               #Arrival time is greater than runtime
+            exetime = process.runtime
+            run_queue.insert(0, process)
+            process_set.insert(0, temp)
+
+        for p in run_queue:
+            print("Adjusting process: ", p, " runtime: ", p.runtime, "\n")
+            p.runtime -= exetime
+            if(p.Arrival < exetime):
+                p.lowerArrival(p.Arrival)
+            else:
+                p.lowerArrival(exetime)
+            print("Updated procses: ", p, " runtime: ", p.runtime, "\n")
+
+        trackedTime += exetime
+
         run_list.append(process)
-        print(f"Process {process.ID} finished")
+        print(f"Process {process.ID} finished with remaining")
 
     return run_list
 
@@ -146,4 +210,4 @@ if __name__ == "__main__":
     p7 = Process.Process(7, 10, 3, 2)
     toRun = [p1, p2, p3, p4, p5, p6, p7]
 
-    print(run(toRun))
+    print(runThread(toRun, 12))
