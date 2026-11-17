@@ -36,8 +36,11 @@ def runThread(process_set, quantum : int):
     ready_queue = deque() # Used a deque to manage the ready processes in a round-robin fashion
     threads = []
 
-    for process in process_set:
-        RRprocess = RRobin(process.ID, process.BurstTime, process.Priority, process.Arrival, 2)
+    # Sort the processes by arrival time to ensure they are added to the ready queue in the correct order
+    sorted_process_set = sorted(process_set, key=lambda x: x.Arrival)
+
+    for process in sorted_process_set:
+        RRprocess = RRobin(process.ID, process.BurstTime, process.Priority, process.Arrival, quantum)
         threads.append(RRprocess)
         RRprocess.start()
 
@@ -74,9 +77,9 @@ def runThread(process_set, quantum : int):
 
 
 if __name__ == "__main__":
-    p1 = Process(1, 9, 0, 0)
+    p1 = Process(1, 9, 0, 3)
     p2 = Process(2, 5, 0, 1)
-    p3 = Process(3, 3, 0, 2)
-    p4 = Process(4, 13, 0, 3)
+    p3 = Process(3, 3, 0, 0)
+    p4 = Process(4, 13, 0, 2)
     processSet = [p1, p2, p3, p4]
     runThread(processSet, 2)
