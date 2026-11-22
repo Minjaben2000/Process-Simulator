@@ -47,5 +47,19 @@ class ShortestJobFirst:
 print("\nAll processes have completed.")
 
 return completed
+
+if __name__ == "__main__":
+  p1 = Process(1, 8, 2, 0)
+  p2 = Process(2, 4, 1, 1)
+  p3 = Process(3, 1, 3, 2)
+  p4 = Process(4, 5, 2, 3)
+
+  processes = [p1, p2, p3, p4]
+
+  # Create the SJF scheduler
+  sjf = ShortestJobFirst(processes)
+
+  # Schedule the Process
+  sjf.schedule()
   
 
