@@ -26,7 +26,7 @@ def run(processes: list[Pro.Process],
         hasAllocated = False
         for p in range(processes.__len__()):
             if not finished[p]:
-                if all(i < j for i, j in zip(need[p], available)):
+                if all(i <= j for i, j in zip(need[p], available)):
                     hasAllocated = True
                     print(f"Process {p} is running.")
                     finished[p] = True
@@ -47,5 +47,5 @@ if __name__ == '__main__':
     p3 = Pro.Process(3, 0, 0, 0)
     print(run([p1, p2, p3,],
               [(1, 2, 4), (2, 4, 2), (3, 1, 1),],
-              [(4, 3, 6), (2, 4, 2), (3, 4, 3),],
+              [(4, 3, 6), (2, 4, 3), (3, 4, 3),],
               [5, 3, 1,])[0])
